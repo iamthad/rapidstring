@@ -1549,4 +1549,97 @@ RS_API void rs_grow_heap(rapidstring *s, size_t n)
 		rs_realloc(s, n * RS_GROWTH_FACTOR);
 }
 
+/*
+ * ===============================================================
+ *
+ *                            SEARCHING
+ *
+ * ===============================================================
+ */
+RS_API unsigned char rs_starts_with_impl(const char *s_buf, size_t s_len,
+					 const char *needle_buf,
+					 size_t needle_len)
+{
+	assert(needle_buf != NULL);
+	if (needle_len > s_len)
+		return 0;
+	return !memcmp(s_buf, needle_buf, needle_len);
+}
+
+RS_API unsigned char rs_stack_starts_with_n(const rapidstring *s,
+					    const char *needle, size_t n)
+{
+	return rs_starts_with_impl(s->stack.buffer, rs_stack_len(s), needle, n);
+}
+
+RS_API unsigned char rs_heap_starts_with_n(const rapidstring *s,
+					   const char *needle, size_t n)
+{
+	return rs_starts_with_impl(s->heap.buffer, rs_heap_len(s), needle, n);
+}
+
+RS_API unsigned char rs_starts_with_n(const rapidstring *s, const char *needle,
+				      size_t n)
+{
+	return rs_is_heap(s) ? rs_heap_starts_with_n(s, needle, n)
+			     : rs_stack_starts_with_n(s, needle, n);
+}
+
+RS_API unsigned char rs_starts_with(const rapidstring *s, const char *needle)
+{
+	return rs_starts_with_n(s, needle, strlen(needle));
+}
+
+RS_API unsigned char rs_starts_with_rs(const rapidstring *s,
+				       const rapidstring *needle)
+{
+	return rs_is_heap(needle) ? rs_starts_with_n(s, needle->heap.buffer,
+						     rs_heap_len(needle))
+				  : rs_starts_with_n(s, needle->stack.buffer,
+						     rs_stack_len(needle));
+}
+
+RS_API unsigned char rs_ends_with_impl(const char *s_buf, size_t s_len,
+				       const char *needle_buf,
+				       size_t needle_len)
+{
+	assert(needle_buf != NULL);
+	if (needle_len > s_len)
+		return 0;
+	return !memcmp(s_len - needle_len + s_buf, needle_buf, needle_len);
+}
+
+RS_API unsigned char rs_stack_ends_with_n(const rapidstring *s,
+					  const char *needle, size_t n)
+{
+	return rs_ends_with_impl(s->stack.buffer, rs_stack_len(s), needle, n);
+}
+
+RS_API unsigned char rs_heap_ends_with_n(const rapidstring *s,
+					 const char *needle, size_t n)
+{
+	return rs_ends_with_impl(s->heap.buffer, rs_heap_len(s), needle, n);
+}
+
+RS_API unsigned char rs_ends_with_n(const rapidstring *s, const char *needle,
+				    size_t n)
+{
+	return rs_is_heap(s) ? rs_heap_ends_with_n(s, needle, n)
+			     : rs_stack_ends_with_n(s, needle, n);
+}
+
+RS_API unsigned char rs_ends_with(const rapidstring *s, const char *needle)
+{
+	return rs_ends_with_n(s, needle, strlen(needle));
+}
+
+RS_API unsigned char rs_ends_with_rs(const rapidstring *s,
+				     const rapidstring *needle)
+{
+	return rs_is_heap(needle) ? rs_ends_with_n(s, needle->heap.buffer,
+						   rs_heap_len(needle))
+				  : rs_ends_with_n(s, needle->stack.buffer,
+						   rs_stack_len(needle));
+}
+
 #endif /* !RAPIDSTRING_H_962AB5F800398A34 */
