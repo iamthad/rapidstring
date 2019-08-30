@@ -955,6 +955,12 @@ RS_API void rs_erase(rapidstring *s, size_t index, size_t n);
  */
 RS_API void rs_stack_clear(rapidstring *s);
 
+RS_API void rs_stack_insert_n(rapidstring *s, size_t index, const char *input, size_t n);
+RS_API void rs_heap_insert_n(rapidstring *s, size_t index, const char *input, size_t n);
+RS_API void rs_insert_n(rapidstring *s, size_t index, const char *input, size_t n);
+RS_API void rs_insert(rapidstring *s, size_t index, const char *input);
+RS_API void rs_insert_rs(rapidstring *s, size_t index, const rapidstring *input);
+
 /**
  * @brief Removes all characters from a heap string.
  *
@@ -1456,6 +1462,33 @@ RS_API void rs_clear(rapidstring *s)
 	else
 		rs_stack_clear(s);
 }
+
+RS_API void rs_stack_insert_n(rapidstring *s, size_t index, const char *input, size_t n)
+{
+	assert(s != NULL);
+	assert(s->stack.left >= n);
+	/* move the NUL as well */
+	memmove(s->stack.buffer + index + n, s->stack.buffer + index, n + 1);
+	memcpy(s->stack.buffer + index, input, n);
+	s->stack.left -= n;
+}
+
+RS_API void rs_heap_insert_n(rapidstring *s, size_t index, const char *input, size_t n)
+{
+	assert(rs_is_heap(s));
+	assert((s->heap.capacity - s->heap.size) >= n);
+	/* move the NUL as well */
+	memmove(s->heap.buffer + index + n, s->heap.buffer + index, n + 1);
+	memcpy(s->heap.buffer + index, input, n);
+	s->heap.size += n;
+}
+RS_API void rs_insert_n(rapidstring *s, size_t index, const char *input, size_t n)
+{
+	if (rs_is_heap(s)) {
+	}
+}
+RS_API void rs_insert(rapidstring *s, size_t index, const char *input);
+RS_API void rs_insert_rs(rapidstring *s, size_t index, const rapidstring *input);
 
 RS_API void rs_stack_resize(rapidstring *s, size_t n)
 {
